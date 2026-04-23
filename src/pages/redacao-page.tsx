@@ -4,7 +4,6 @@ import {
   faFileLines,
   faMedal,
   faPlus,
-  faPaperclip,
   faXmark,
   faCalendarDays,
   faTag,
@@ -14,37 +13,42 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PagesHeader } from "../components/PagesHeader/PagesHeader";
 import { InfoCardPages } from "../components/InfoCardPages/InfoCardPages";
 import { FormRedacao } from "../components/FormRedacao/FormRedacao";
+import { useStore } from "../hooks/useStore";
 
 interface RedacaoItem {
   id: number;
   titulo: string;
   tema: string;
   data: string;
-  arquivoReal: File | null; // Agora salvamos o arquivo real aqui
+  arquivoReal: File | null;
 }
 
 export const RedacaoPage = () => {
   const [formRedacaoOpen, setFormRedacaoOpen] = useState(false);
-  const [redacaoSelecionada, setRedacaoSelecionada] =
-    useState<RedacaoItem | null>(null);
-  const [redacoes, setRedacoes] = useState<RedacaoItem[]>([]);
+  const [redacaoSelecionada, setRedacaoSelecionada] = useState<RedacaoItem | null>(null);
+
+  // Consumindo Zustand Store
+  const redacoes = useStore((state) => state.redacoes);
+  const adicionarRedacaoStore = useStore((state) => state.adicionarRedacao);
+  const removerRedacaoStore = useStore((state) => state.removerRedacao);
 
   const handleSaveRedacao = (dados: {
     titulo: string;
     tema: string;
     arquivo: File;
   }) => {
-    const novaRedacao: RedacaoItem = {
+    const novaRedacao = {
       id: Date.now(),
       titulo: dados.titulo,
       tema: dados.tema,
-      arquivoReal: dados.arquivo, 
       data: new Date().toLocaleDateString("pt-BR"),
+      arquivoReal: dados.arquivo,
     };
-    setRedacoes([novaRedacao, ...redacoes]);
+
+    adicionarRedacaoStore(novaRedacao);
+    setFormRedacaoOpen(false);
   };
 
-  // Função para baixar o arquivo salvo localmente
   const baixarArquivo = (file: File) => {
     const url = URL.createObjectURL(file);
     const link = document.createElement("a");
@@ -54,6 +58,20 @@ export const RedacaoPage = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const handleRemove = (id?: number) => {
+    // Se um ID for passado (pelo card), usa ele. Caso contrário, usa o da redação selecionada no modal.
+    const idParaRemover = id || redacaoSelecionada?.id;
+
+    if (!idParaRemover) return;
+
+    removerRedacaoStore(idParaRemover);
+
+    // Se a redação que estamos removendo for a que está aberta no modal, fechamos o modal
+    if (redacaoSelecionada?.id === idParaRemover) {
+      setRedacaoSelecionada(null);
+    }
   };
 
   return (
@@ -67,7 +85,7 @@ export const RedacaoPage = () => {
 
       {/* MODAL DE DETALHES */}
       {redacaoSelecionada && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
           <div className="bg-[#1a1625] w-full max-w-xl p-8 rounded-3xl border border-[#322654] relative shadow-2xl">
             <button
               onClick={() => setRedacaoSelecionada(null)}
@@ -75,20 +93,16 @@ export const RedacaoPage = () => {
             >
               <FontAwesomeIcon icon={faXmark} size="xl" />
             </button>
-
+            
             <h2 className="text-3xl font-bold mb-6 text-[#8B5CF6]">Detalhes</h2>
-
+            
             <div className="space-y-6">
               <div>
-                <label className="text-gray-500 text-sm block mb-1">
-                  Título
-                </label>
-                <p className="text-xl font-semibold">
-                  {redacaoSelecionada.titulo}
-                </p>
+                <label className="text-gray-500 text-sm block mb-1">Título</label>
+                <p className="text-xl font-semibold">{redacaoSelecionada.titulo}</p>
               </div>
 
-              <div className="flex gap-10">
+              <div className="flex gap-10 justify-between items-end">
                 <div>
                   <label className="text-gray-500 text-sm block mb-1">
                     <FontAwesomeIcon icon={faTag} /> Tema
@@ -101,29 +115,30 @@ export const RedacaoPage = () => {
                   </label>
                   <p className="font-medium">{redacaoSelecionada.data}</p>
                 </div>
+                
+                <button
+                  className="text-2xl cursor-pointer hover:text-[#8B5CF6] transition-colors p-2"
+                  title="Baixar Redação"
+                  onClick={() => {
+                    if (redacaoSelecionada.arquivoReal) {
+                      baixarArquivo(redacaoSelecionada.arquivoReal);
+                    } else {
+                      alert("Arquivo não disponível nesta sessão.");
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faDownload} />
+                </button>
               </div>
 
-              {redacaoSelecionada.arquivoReal && (
-                <div className="bg-[#0d0a14] p-4 rounded-2xl border border-[#322654] flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FontAwesomeIcon
-                      icon={faPaperclip}
-                      className="text-[#8B5CF6]"
-                    />
-                    <span className="text-sm truncate max-w-[200px]">
-                      {redacaoSelecionada.arquivoReal.name}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() =>
-                      baixarArquivo(redacaoSelecionada.arquivoReal!)
-                    }
-                    className="flex items-center gap-2 bg-[#8B5CF6] px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#7c4dff]"
-                  >
-                    <FontAwesomeIcon icon={faDownload} /> Baixar
-                  </button>
-                </div>
-              )}
+              <div className="pt-4 border-t border-[#322654]">
+                <button
+                  onClick={() => handleRemove()}
+                  className="text-red-500 text-sm font-bold hover:underline"
+                >
+                  Excluir esta redação
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -138,7 +153,7 @@ export const RedacaoPage = () => {
         />
         <button
           onClick={() => setFormRedacaoOpen(true)}
-          className="bg-[#8B5CF6] px-6 h-12 text-white font-bold rounded-2xl flex items-center gap-2 mt-5"
+          className="bg-[#8B5CF6] px-6 h-12 text-white font-bold rounded-2xl flex items-center gap-2 mt-5 hover:bg-[#7c4dff] transition-colors"
         >
           <FontAwesomeIcon icon={faPlus} /> Nova Redação
         </button>
@@ -151,35 +166,35 @@ export const RedacaoPage = () => {
             variantColorText="#FFB900"
             icon={faFileLines}
             infoNumber={redacoes.length}
-            infoDescription={"Total"}
+            infoDescription={"Total de redações"}
           />
           <InfoCardPages
             variantColorBg="#163A3B"
             variantColorText="#0E745C"
             icon={faCircleCheck}
             infoNumber={0}
-            infoDescription={"Corrigidas"}
+            infoDescription={"Redações Corrigidas"}
           />
           <InfoCardPages
             variantColorBg="#322654"
             variantColorText="#895BF3"
             icon={faMedal}
             infoNumber={0}
-            infoDescription={"Nota"}
+            infoDescription={"Nota Média"}
           />
         </section>
 
+        {/* Upload das redações */}
         <section className="mt-12">
           <h2 className="text-2xl font-bold mb-6">Suas Redações</h2>
-
           <div className="flex flex-col gap-4">
             {redacoes.length > 0 ? (
               redacoes.map((red) => (
                 <div
                   key={red.id}
-                  className="bg-[#1a1625] border border-[#322654] p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-[#8B5CF6] transition-all group"
+                  className="bg-[#1a1625] relative border border-[#322654] p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-[#8B5CF6] transition-all group"
                 >
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 relative">
                     <h3 className="text-white font-bold text-xl group-hover:text-[#8B5CF6] transition-colors">
                       {red.titulo}
                     </h3>
@@ -187,12 +202,23 @@ export const RedacaoPage = () => {
                       {red.tema} • {red.data}
                     </p>
                   </div>
-                  <button
-                    onClick={() => setRedacaoSelecionada(red)}
-                    className="bg-[#322654] hover:bg-[#8B5CF6] text-white px-6 py-2 rounded-xl font-bold transition-colors text-sm"
-                  >
-                    Ver Detalhes
-                  </button>
+                  
+                  <div className="flex items-center gap-4 ">
+                    <button
+                      onClick={() => setRedacaoSelecionada(red as any)}
+                      className="bg-[#322654] hover:bg-[#8B5CF6] text-white px-6 py-2 rounded-xl font-bold transition-colors text-sm"
+                    >
+                      Ver Detalhes
+                    </button>
+                    
+                    <button
+                      onClick={() => handleRemove(red.id)}
+                      className="text-gray-500 hover:text-red-500 transition-all p-2 absolute top-5 right-5 hover:scale-100"
+                      title="Excluir"
+                    >
+                      <FontAwesomeIcon icon={faXmark} />
+                    </button>
+                  </div>
                 </div>
               ))
             ) : (

@@ -47,7 +47,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
             </time>
           </header>
 
-          <div className="w-full h-[1px] bg-white/5 my-2" role="separator"></div>
+          <div className="w-full h-px bg-white/5 my-2" role="separator"></div>
 
           <div>
             <h3 className="text-white/50 text-xs font-bold uppercase tracking-widest mb-1">

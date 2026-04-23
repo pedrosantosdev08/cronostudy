@@ -15,7 +15,7 @@ export const HomeHeader = () => {
     <header>
       <div className="flex gap-2 items-center mb-5">
         <img src={CronoStudyLogo} alt="Logo CronoStudy" className="h-12 w-12"/>
-        <span className="text-[#5c23e0] font-bold text-2xl">CronoStudy</span>
+        <span className="text-white font-bold text-2xl">CronoStudy</span>
       </div>
       <div>
         <h1 className="text-4xl text-white font-bold">
