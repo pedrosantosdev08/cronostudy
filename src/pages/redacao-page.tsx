@@ -23,7 +23,7 @@ interface RedacaoItem {
   arquivoReal: File | null; // Agora salvamos o arquivo real aqui
 }
 
-export const Redacao = () => {
+export const RedacaoPage = () => {
   const [formRedacaoOpen, setFormRedacaoOpen] = useState(false);
   const [redacaoSelecionada, setRedacaoSelecionada] =
     useState<RedacaoItem | null>(null);
@@ -38,7 +38,7 @@ export const Redacao = () => {
       id: Date.now(),
       titulo: dados.titulo,
       tema: dados.tema,
-      arquivoReal: dados.arquivo, // Salvando o objeto File completo
+      arquivoReal: dados.arquivo, 
       data: new Date().toLocaleDateString("pt-BR"),
     };
     setRedacoes([novaRedacao, ...redacoes]);

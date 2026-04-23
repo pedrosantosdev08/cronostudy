@@ -1,4 +1,5 @@
 import { useState } from "react";
+import  CronoStudyLogo  from "../../assets/favicon-32x32.png"
 
 export const HomeHeader = () => {
   const obterSaudacao = () => {
@@ -12,8 +13,9 @@ export const HomeHeader = () => {
 
   return (
     <header>
-      <div>
-        {/* <span className="text-[#5c23e0]">CronoStudy</span> */}
+      <div className="flex gap-2 items-center mb-5">
+        <img src={CronoStudyLogo} alt="Logo CronoStudy" className="h-12 w-12"/>
+        <span className="text-[#5c23e0] font-bold text-2xl">CronoStudy</span>
       </div>
       <div>
         <h1 className="text-4xl text-white font-bold">

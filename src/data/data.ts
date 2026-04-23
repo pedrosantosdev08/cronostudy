@@ -1,8 +1,12 @@
 import {
+  faArrowTrendUp,
   faBolt,
+  faBookOpen,
   faBullseye,
   faCalendar,
+  faCalendarCheck,
   faClock,
+  faFileLines,
   faFireFlameCurved,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -46,7 +50,7 @@ export const NAVIGATIONCARD_DATA = [
   },
   {
     id: 2,
-    icon: faCalendar,
+    icon: faBookOpen,
     title: "Conteúdos",
     description: "Acesse materiais e recursos de estudos organizados",
     label: "Sessões esta semana",
@@ -56,7 +60,7 @@ export const NAVIGATIONCARD_DATA = [
   },
   {
     id: 3,
-    icon: faCalendar,
+    icon: faCalendarCheck,
     title: "Checklist de Assusntos",
     description: "Acompanhe o progresso em cada materia",
     label: "Sessões esta semana",
@@ -66,7 +70,7 @@ export const NAVIGATIONCARD_DATA = [
   },
   {
     id: 4,
-    icon: faCalendar,
+    icon: faFileLines,
     title: "Minhas redações",
     description: "Pratique e revise suas redações",
     label: "Sessões esta semana",
@@ -76,7 +80,7 @@ export const NAVIGATIONCARD_DATA = [
   },
   {
     id: 5,
-    icon: faCalendar,
+    icon: faArrowTrendUp,
     title: "Meu Desempenho",
     description: "Visualize estatísticas e evolução nos estudos",
     label: "Sessões esta semana",
