@@ -15,7 +15,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           isOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         onClick={onClose}
-        aria-hidden="true" // Oculta o overlay de leitores de tela, pois é apenas visual
+        aria-hidden="true" 
       />
 
       {/* PAINEL LATERAL */}
