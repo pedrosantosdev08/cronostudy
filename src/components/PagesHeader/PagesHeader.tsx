@@ -30,7 +30,7 @@ export const PagesHeader = ({
             >
               <FontAwesomeIcon icon={icon} />
             </div>
-            <h1 className="text-white text-3xl font-bold tracking-tight">
+            <h1 className="text-white text-2xl font-bold tracking-tight">
               {titleHeader}
             </h1>
           </div>

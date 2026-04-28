@@ -7,8 +7,6 @@ interface NavigationCardProps {
   icon: IconDefinition;
   title: string;
   description: string;
-  label: string;
-  progress: number;
   variantColor?: string;
   path: string;
 }
@@ -16,9 +14,7 @@ interface NavigationCardProps {
 export const NavigationCard = ({
   icon,
   title,
-  label,
   description,
-  progress,
   variantColor,
   path,
 }: NavigationCardProps) => {
@@ -26,7 +22,7 @@ export const NavigationCard = ({
   return (
     <div
       className="w-full bg-radial-[at_50%_75%] from-[#1C192B] border border-white/5 rounded-4xl p-6 flex flex-col gap-5 transition-all hover:bg-[#1c172e] cursor-pointer"
-      onClick={()=> navigate(path)}
+      onClick={() => navigate(path)}
     >
       {/* 1. Ícone com Gradiente */}
       <div
@@ -53,15 +49,7 @@ export const NavigationCard = ({
       </div>
 
       {/* 3. Linha Divisória sutil */}
-      <div className="h-[1px] w-full bg-white/5 mt-2" />
-
-      {/* 4. Rodapé (Label e Progress) */}
-      <div className="flex justify-between items-center">
-        <p className="text-gray-500 text-sm font-medium">{label}</p>
-        <span className="text-xl font-bold" style={{ color: variantColor }}>
-          {progress}
-        </span>
-      </div>
+      <div className="h-px w-full bg-white/5 mt-2" />
     </div>
   );
 };

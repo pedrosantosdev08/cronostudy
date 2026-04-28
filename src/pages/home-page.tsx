@@ -5,16 +5,25 @@ import { NavigationCard } from "../components/NavigationCards/NavigationCard";
 import { INFOCARD_DATA, NAVIGATIONCARD_DATA } from "../data/data";
 
 export const Home = () => {
-  // Desestruturando para facilitar o uso
-  const { diasConsecutivos, horasSemana, metaDiaria, xp, redacoes } = useStore();
+  // Pegando os valores do store com fallbacks (valores padrão) para evitar erros de undefined
+  const diasConsecutivos = useStore((state) => state.diasConsecutivos) ?? 0;
+  const horasSemana = useStore((state) => state.horasSemana) ?? 0;
+  const metaDiaria = useStore((state) => state.metaDiaria) ?? 0;
+  const xp = useStore((state) => state.xp) ?? 0;
 
   const getDynamicValue = (id: number) => {
     switch (id) {
-      case 1: return diasConsecutivos;
-      case 2: return `${horasSemana}h`;
-      case 3: return `${metaDiaria}%`;
-      case 4: return xp.toFixed(2);
-      default: return 0;
+      case 1:
+        return diasConsecutivos;
+      case 2:
+        // Garante que é número antes de exibir
+        return `${horasSemana}h`;
+      case 3:
+        return `${metaDiaria}%`;
+      case 4:
+        return Number(xp).toFixed(2);
+      default:
+        return 0;
     }
   };
 
@@ -31,24 +40,22 @@ export const Home = () => {
             <InfoCard
               key={infocard.id}
               {...infocard}
+              // O InfoCard deve estar preparado para receber string ou number
               infoNumber={getDynamicValue(infocard.id)}
             />
           ))}
         </div>
 
         <div>
-          <h2 className="text-white text-3xl font-bold">Navegação Rápida</h2>
+          <h2 className="text-white text-2xl lg:text-3xl font-black italic uppercase tracking-tighter">
+            Navegação Rápida
+          </h2>
         </div>
 
-        {/* NAVIGATION CARDS (Cards de progresso) */}
-        <div className="w-full flex flex-col items-start gap-6 lg:grid lg:grid-cols-3 lg:grid-rows-2">
+        {/* NAVIGATION CARDS */}
+        <div className="w-full flex flex-col items-start gap-6 lg:grid lg:grid-cols-3">
           {NAVIGATIONCARD_DATA.map((navCard) => (
-            <NavigationCard
-              key={navCard.id}
-              {...navCard}
-              // Se o card for de Redações (ID 4), usamos o tamanho da lista na store
-              progress={navCard.id === 4 ? redacoes.length : navCard.progress}
-            />
+            <NavigationCard key={navCard.id} {...navCard} />
           ))}
         </div>
       </main>

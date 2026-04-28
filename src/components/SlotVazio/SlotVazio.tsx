@@ -1,16 +1,22 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-interface sla {
-    onClick?: ()=> void;
+interface SlotVazioProps {
+  onClick?: () => void;
 }
 
-export const SlotVazio = ({onClick}:sla) => {
+export const SlotVazio = ({ onClick }: SlotVazioProps) => {
   return (
-    <div onClick={onClick}>
-      <div className="w-20 h-20 rounded-2xl p-10 border-2 border-dashed border-white/10 flex justify-center items-center m-3 transition hover:bg-white/20">
-        <FontAwesomeIcon icon={faPlus} className="text-white" />
+    <button 
+      onClick={onClick}
+      className="w-full h-20 rounded-2xl border-2 border-dashed border-white/5 flex justify-center items-center transition-all duration-300 hover:bg-white/5 hover:border-white/20 group"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-white/5 flex justify-center items-center group-hover:bg-purple-600 transition-colors">
+          <FontAwesomeIcon icon={faPlus} className="text-white text-xs" />
+        </div>
+        <span className="text-white/20 font-bold text-xs tracking-widest group-hover:text-white/40">ADICIONAR MATÉRIA</span>
       </div>
-    </div>
+    </button>
   );
 };

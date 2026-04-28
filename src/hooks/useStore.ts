@@ -1,13 +1,24 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-// Interface para o objeto de Redação
-interface Redacao {
+// 1. Interface estrita para a Redação
+export interface Redacao {
   id: number;
   titulo: string;
   tema: string;
   data: string;
-  arquivoReal?: File | null; // Adicione isso aqui
+  arquivoReal?: File | null;
+  corrigida: boolean;
+  nota?: number;
+}
+
+interface Materia {
+  id: number;
+  titulo: string;
+  tema: string;
+  data: string;
+  dia: string;
+  tempo: string;
 }
 
 interface StudyStore {
@@ -15,16 +26,14 @@ interface StudyStore {
   horasSemana: number;
   metaDiaria: number;
   xp: number;
+  materias: Materia[];
   redacoes: Redacao[];
-  progressoCronograma: number;
-  progressoConteudos: number;
-  progressoChecklist: number;
-
-  // Ações
-  adicionarHora: (valor: number) => void;
+  redacoesCorrigidas: Redacao[];
+  adicionarMateria: (novaMateria: Omit<Materia, "dia">, diaDaSemana: string, horas: number) => void;
+  removerMateria: (id: number) => void;
   adicionarRedacao: (novaRedacao: Redacao) => void;
-  adicionarXP: (valor: number) => void;
-   removerRedacao: (id: number) => void;
+  removerRedacao: (id: number) => void;
+  corrigirRedacao: (id: number, nota: number) => void;
 }
 
 export const useStore = create<StudyStore>()(
@@ -33,33 +42,53 @@ export const useStore = create<StudyStore>()(
       diasConsecutivos: 0,
       horasSemana: 0,
       metaDiaria: 0,
-      xp: 0.0,
+      xp: 0,
+      materias: [],
       redacoes: [],
-      progressoCronograma: 0,
-      progressoConteudos: 0,
-      progressoChecklist: 0,
+      redacoesCorrigidas: [],
 
-      adicionarHora: (valor) =>
-        set((state) => ({ horasSemana: state.horasSemana + valor })),
+      adicionarMateria: (novaMateria, diaDaSemana, horas) =>
+        set((state) => ({
+          materias: [...state.materias, { ...novaMateria, dia: diaDaSemana }],
+          horasSemana: state.horasSemana + horas,
+          xp: state.xp + horas * 0.2,
+        })),
+
+      removerMateria: (id) =>
+        set((state) => ({
+          materias: state.materias.filter((m) => m.id !== id),
+        })),
 
       adicionarRedacao: (novaRedacao) =>
         set((state) => ({
           redacoes: [novaRedacao, ...state.redacoes],
-          // Ganha 0.50 de XP por redação
           xp: state.xp + 0.5,
         })),
 
-      removerRedacao: (id: number) =>
+      corrigirRedacao: (id, nota) =>
+        set((state) => {
+          const item = state.redacoes.find((r) => r.id === id);
+          if (!item) return state;
+
+          const atualizada: Redacao = { ...item, corrigida: true, nota };
+
+          return {
+            redacoes: state.redacoes.filter((r) => r.id !== id),
+            redacoesCorrigidas: [atualizada, ...state.redacoesCorrigidas],
+            xp: state.xp + 2.0,
+          };
+        }),
+
+      removerRedacao: (id) =>
         set((state) => ({
-          redacoes: state.redacoes.filter((red) => red.id !== id),
+          redacoes: state.redacoes.filter((r) => r.id !== id),
+          redacoesCorrigidas: state.redacoesCorrigidas.filter((r) => r.id !== id),
           xp: Math.max(0, state.xp - 0.5),
         })),
-
-      adicionarXP: (valor) => set((state) => ({ xp: state.xp + valor })),
     }),
     {
       name: "estudos-app-storage",
       storage: createJSONStorage(() => localStorage),
-    },
-  ),
+    }
+  )
 );
