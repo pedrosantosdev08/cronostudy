@@ -1,9 +1,9 @@
 const baseDate = new Date();
 const days: { name: string; number: number; fullName: string }[] = [];
-const sunday = baseDate.getDate() - baseDate.getDay();
+const monday = baseDate.getDate() - baseDate.getDay() + 1;
 
 for (let i = 0; i < 7; i++) {
-  const date = new Date(baseDate.getFullYear(), baseDate.getMonth(), sunday + i);
+  const date = new Date(baseDate.getFullYear(), baseDate.getMonth(), monday + i);
   const dayName = date.toLocaleDateString("pt-BR", { weekday: "long" });
   const dayNumber = date.getDate();
 
