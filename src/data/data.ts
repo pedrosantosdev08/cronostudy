@@ -5,6 +5,7 @@ import {
   faBullseye,
   faCalendar,
   faCalendarCheck,
+  faCheck,
   faClock,
   faFileLines,
   faFireFlameCurved,
@@ -32,6 +33,39 @@ export const INFOCARD_DATA = [
     infoDescription: "Pontos XPs",
   },
 ];
+
+export const INICIALCARD = [
+{
+  id:1,
+  icon: faCalendar,
+  title: "Horário Semanal",
+  infoDescription: "Organize seus estudos com um cronograma semanal personalizado. Visualize todas as suas atividades de forma clara e eficiente."
+},
+{
+  id:2,
+  icon: faArrowTrendUp,
+  title: "Análise de Desempenho",
+  infoDescription: "Acompanhe seu progresso com gráficos detalhados e métricas de desempenho. Identifique pontos fortes e áreas para melhorar."
+},
+{
+  id:3,
+  icon: faCheck,
+  title: "Checklist de Assuntos",
+  infoDescription: "Marque os tópicos já estudados e organize suas prioridades. Nunca mais perca o controle do que precisa revisar."
+},
+{
+  id:4,
+  icon: faBookOpen,
+  title: "Biblioteca de Conteúdos",
+  infoDescription: "Acesse materiais de estudo organizados por disciplina. Tudo que você precisa em um só lugar."
+},
+{
+  id:5,
+  icon: faFileLines,
+  title: "Controle de Redações",
+  infoDescription: "Gerencie suas redações, acompanhe correções e melhore sua escrita de forma consistente."
+},
+]
 
 export const NAVIGATIONCARD_DATA = [
   {

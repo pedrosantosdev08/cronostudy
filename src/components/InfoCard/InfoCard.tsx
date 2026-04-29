@@ -3,13 +3,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface InfoCardProps {
   icon: IconDefinition;
-  infoNumber: number | string;
+  title?: string;
+  infoNumber?: number | string;
   infoDescription: string;
 }
 
 export const InfoCard = ({
   icon,
   infoNumber,
+  title,
   infoDescription,
 }: InfoCardProps) => {
   return (
@@ -22,6 +24,7 @@ export const InfoCard = ({
 
       {/* Container do Texto: Alinhamento preciso */}
       <div className="flex flex-col justify-center">
+        <h3>{title}</h3>
         <span className="text-white font-bold text-3xl tracking-tight leading-tight">
           {infoNumber}
         </span>
