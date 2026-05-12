@@ -1,5 +1,9 @@
 import { create } from "zustand";
 import type { User } from "firebase/auth";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { getMateriaIcon } from "../lib/materiaIcons";
+import type { MateriaFirestoreDoc } from "../lib/cronogramaFirestore";
+import { saveCronograma } from "../lib/cronogramaFirestore";
 
 // 1. Interface estrita para a Redação
 export interface Redacao {
@@ -12,13 +16,38 @@ export interface Redacao {
   nota?: number;
 }
 
-interface Materia {
+export interface Materia {
   id: number;
   titulo: string;
   tema: string;
   data: string;
   dia: string;
   tempo: string;
+  icon: IconDefinition;
+}
+
+function materiasParaFirestore(materias: Materia[]): MateriaFirestoreDoc[] {
+  return materias.map(({ id, titulo, tema, data, dia, tempo }) => ({
+    id,
+    titulo,
+    tema,
+    data,
+    dia,
+    tempo,
+  }));
+}
+
+function persistCronogramaIfLoggedIn(
+  materias: Materia[],
+  horasSemana: number,
+  xp: number,
+  user: User | null,
+) {
+  const uid = user?.uid;
+  if (!uid) return;
+  void saveCronograma(uid, materiasParaFirestore(materias), horasSemana, xp).catch((err) => {
+    console.error("[cronograma] Falha ao salvar no Firestore:", err);
+  });
 }
 
 interface StudyStore {
@@ -36,6 +65,15 @@ interface StudyStore {
   materias: Materia[];
   redacoes: Redacao[];
   redacoesCorrigidas: Redacao[];
+
+  /** Substitui cronograma vindo do Firestore (após login / carga inicial). */
+  hydrateCronogramaFromRemote: (
+    materias: MateriaFirestoreDoc[],
+    horasSemana: number,
+    xp: number,
+  ) => void;
+  /** Limpa dados do cronograma (logout ou troca de usuário antes de nova carga). */
+  resetCronogramaLocal: () => void;
 
   // Ações
   adicionarMateria: (novaMateria: Omit<Materia, "dia">, diaDaSemana: string, horas: number) => void;
@@ -56,20 +94,40 @@ export const useStore = create<StudyStore>()((set) => ({
   redacoes: [],
   redacoesCorrigidas: [],
 
-  // Ação para o Firebase Observer
   setUser: (user) => set({ user }),
 
+  hydrateCronogramaFromRemote: (materiasDoc, horasSemana, xp) =>
+    set({
+      materias: materiasDoc.map((m) => ({
+        ...m,
+        icon: getMateriaIcon(m.titulo),
+      })),
+      horasSemana,
+      xp,
+    }),
+
+  resetCronogramaLocal: () =>
+    set({
+      materias: [],
+      horasSemana: 0,
+      xp: 0,
+    }),
+
   adicionarMateria: (novaMateria, diaDaSemana, horas) =>
-    set((state) => ({
-      materias: [...state.materias, { ...novaMateria, dia: diaDaSemana }],
-      horasSemana: state.horasSemana + horas,
-      xp: state.xp + horas * 0.2,
-    })),
+    set((state) => {
+      const materias = [...state.materias, { ...novaMateria, dia: diaDaSemana }];
+      const horasSemana = state.horasSemana + horas;
+      const xp = state.xp + horas * 0.2;
+      persistCronogramaIfLoggedIn(materias, horasSemana, xp, state.user);
+      return { materias, horasSemana, xp };
+    }),
 
   removerMateria: (id) =>
-    set((state) => ({
-      materias: state.materias.filter((m) => m.id !== id),
-    })),
+    set((state) => {
+      const materias = state.materias.filter((m) => m.id !== id);
+      persistCronogramaIfLoggedIn(materias, state.horasSemana, state.xp, state.user);
+      return { materias };
+    }),
 
   adicionarRedacao: (novaRedacao) =>
     set((state) => ({

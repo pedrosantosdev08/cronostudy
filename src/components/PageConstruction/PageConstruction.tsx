@@ -2,9 +2,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHammer, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router";
+import { useStore } from "../../hooks/useStore";
 
 export const PageConstruction = () => {
   const navigate = useNavigate();
+  const user = useStore((state) => state.user);
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#0d0a14] px-4 text-center">
@@ -22,7 +24,7 @@ export const PageConstruction = () => {
             Em <span className="text-purple-500">Construção</span>
           </h1>
           <p className="text-gray-400 text-lg leading-relaxed">
-            Pedro, estamos trabalhando duro para entregar essa funcionalidade. 
+            {user?.displayName?.split(" ")[0] || "Estudante"}, estamos trabalhando duro para entregar essa funcionalidade. 
             Em breve você terá acesso total ao seu hub de estudos inteligente.
           </p>
         </div>
