@@ -53,9 +53,7 @@ export const InicialPage = () => {
             >
               Começar agora gratuitamente
             </button>
-            <button className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-black uppercase italic rounded-xl border border-white/10 transition-all">
-              Ver demonstração
-            </button>
+            
           </div>
         </section>
 

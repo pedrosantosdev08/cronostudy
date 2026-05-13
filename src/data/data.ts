@@ -4,8 +4,6 @@ import {
   faBookOpen,
   faBullseye,
   faCalendar,
-  faCalendarCheck,
-  faCheck,
   faClock,
   faFileLines,
   faFireFlameCurved,
