@@ -90,7 +90,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full bg-[#0d0a14] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-purple-500 outline-none transition-all"
-                placeholder="Pedro Gabriel"
+                placeholder="Seu Nome"
               />
             </div>
           )}

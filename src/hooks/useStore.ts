@@ -1,9 +1,12 @@
 import { create } from "zustand";
+
 import type { User } from "firebase/auth";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { getMateriaIcon } from "../lib/materiaIcons";
 import type { MateriaFirestoreDoc } from "../lib/cronogramaFirestore";
 import { saveCronograma } from "../lib/cronogramaFirestore";
+import { auth } from "../lib/firebase";
+import { parseTempoExibicaoParaHoras } from "../lib/parseEstudoTempo";
 
 // 1. Interface estrita para a Redação
 export interface Redacao {
@@ -37,13 +40,9 @@ function materiasParaFirestore(materias: Materia[]): MateriaFirestoreDoc[] {
   }));
 }
 
-function persistCronogramaIfLoggedIn(
-  materias: Materia[],
-  horasSemana: number,
-  xp: number,
-  user: User | null,
-) {
-  const uid = user?.uid;
+/** Usa `auth.currentUser` (fonte da sessão) — o `user` do Zustand pode atrasar após login/refresh. */
+function persistCronogramaIfLoggedIn(materias: Materia[], horasSemana: number, xp: number) {
+  const uid = auth.currentUser?.uid;
   if (!uid) return;
   void saveCronograma(uid, materiasParaFirestore(materias), horasSemana, xp).catch((err) => {
     console.error("[cronograma] Falha ao salvar no Firestore:", err);
@@ -74,6 +73,8 @@ interface StudyStore {
   ) => void;
   /** Limpa dados do cronograma (logout ou troca de usuário antes de nova carga). */
   resetCronogramaLocal: () => void;
+  /** Só o valor exibido na UI; origem da verdade é Firestore (`streak`). */
+  setDiasConsecutivos: (dias: number) => void;
 
   // Ações
   adicionarMateria: (novaMateria: Omit<Materia, "dia">, diaDaSemana: string, horas: number) => void;
@@ -96,6 +97,8 @@ export const useStore = create<StudyStore>()((set) => ({
 
   setUser: (user) => set({ user }),
 
+  setDiasConsecutivos: (dias) => set({ diasConsecutivos: dias }),
+
   hydrateCronogramaFromRemote: (materiasDoc, horasSemana, xp) =>
     set({
       materias: materiasDoc.map((m) => ({
@@ -111,6 +114,7 @@ export const useStore = create<StudyStore>()((set) => ({
       materias: [],
       horasSemana: 0,
       xp: 0,
+      diasConsecutivos: 0,
     }),
 
   adicionarMateria: (novaMateria, diaDaSemana, horas) =>
@@ -118,22 +122,27 @@ export const useStore = create<StudyStore>()((set) => ({
       const materias = [...state.materias, { ...novaMateria, dia: diaDaSemana }];
       const horasSemana = state.horasSemana + horas;
       const xp = state.xp + horas * 0.2;
-      persistCronogramaIfLoggedIn(materias, horasSemana, xp, state.user);
+      persistCronogramaIfLoggedIn(materias, horasSemana, xp);
       return { materias, horasSemana, xp };
     }),
 
   removerMateria: (id) =>
     set((state) => {
+      const removida = state.materias.find((m) => m.id === id);
       const materias = state.materias.filter((m) => m.id !== id);
-      persistCronogramaIfLoggedIn(materias, state.horasSemana, state.xp, state.user);
-      return { materias };
+      const horasRemovidas = removida ? parseTempoExibicaoParaHoras(removida.tempo) : 0;
+      const horasSemana = Math.max(0, state.horasSemana - horasRemovidas);
+      const xp = Math.max(0, state.xp - horasRemovidas * 0.2);
+      persistCronogramaIfLoggedIn(materias, horasSemana, xp);
+      return { materias, horasSemana, xp };
     }),
 
   adicionarRedacao: (novaRedacao) =>
-    set((state) => ({
-      redacoes: [novaRedacao, ...state.redacoes],
-      xp: state.xp + 0.5,
-    })),
+    set((state) => {
+      const xp = state.xp + 0.5;
+      persistCronogramaIfLoggedIn(state.materias, state.horasSemana, xp);
+      return { redacoes: [novaRedacao, ...state.redacoes], xp };
+    }),
 
   corrigirRedacao: (id, nota) =>
     set((state) => {
@@ -141,18 +150,24 @@ export const useStore = create<StudyStore>()((set) => ({
       if (!item) return state;
 
       const atualizada: Redacao = { ...item, corrigida: true, nota };
+      const xp = state.xp + 2.0;
+      persistCronogramaIfLoggedIn(state.materias, state.horasSemana, xp);
 
       return {
         redacoes: state.redacoes.filter((r) => r.id !== id),
         redacoesCorrigidas: [atualizada, ...state.redacoesCorrigidas],
-        xp: state.xp + 2.0,
+        xp,
       };
     }),
 
   removerRedacao: (id) =>
-    set((state) => ({
-      redacoes: state.redacoes.filter((r) => r.id !== id),
-      redacoesCorrigidas: state.redacoesCorrigidas.filter((r) => r.id !== id),
-      xp: Math.max(0, state.xp - 0.5),
-    })),
+    set((state) => {
+      const xp = Math.max(0, state.xp - 0.5);
+      persistCronogramaIfLoggedIn(state.materias, state.horasSemana, xp);
+      return {
+        redacoes: state.redacoes.filter((r) => r.id !== id),
+        redacoesCorrigidas: state.redacoesCorrigidas.filter((r) => r.id !== id),
+        xp,
+      };
+    }),
 }));

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { faBookBookmark, faBookOpen, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { PagesHeader } from "../components/PagesHeader/PagesHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,22 +9,21 @@ export const ConteudoPage = () => {
   const materias = useStore((state) => state.materias);
   const [filtroTitulo, setFiltroTitulo] = useState<string>("Tudo");
 
+  /** Evita filtro “fantasma” se a matéria sumir do cronograma, sem `setState` em `useEffect`. */
+  const filtroExibicao = useMemo(() => {
+    if (filtroTitulo === "Tudo") return "Tudo";
+    return materias.some((m) => m.titulo === filtroTitulo) ? filtroTitulo : "Tudo";
+  }, [materias, filtroTitulo]);
+
   const categorias = useMemo(() => {
     const unicos = [...new Set(materias.map((m) => m.titulo))].filter(Boolean).sort();
     return ["Tudo", ...unicos];
   }, [materias]);
 
   const materiasFiltradas = useMemo(() => {
-    if (filtroTitulo === "Tudo") return materias;
-    return materias.filter((m) => m.titulo === filtroTitulo);
-  }, [materias, filtroTitulo]);
-
-  useEffect(() => {
-    if (filtroTitulo === "Tudo") return;
-    if (!materias.some((m) => m.titulo === filtroTitulo)) {
-      setFiltroTitulo("Tudo");
-    }
-  }, [materias, filtroTitulo]);
+    if (filtroExibicao === "Tudo") return materias;
+    return materias.filter((m) => m.titulo === filtroExibicao);
+  }, [materias, filtroExibicao]);
 
   return (
     <div className="min-h-screen w-full bg-[#0d0a14] text-white flex flex-col items-center pb-20">
@@ -56,7 +55,7 @@ export const ConteudoPage = () => {
             
             <div className="flex flex-wrap gap-2">
               {categorias.map((cat) => {
-                const ativo = filtroTitulo === cat;
+                const ativo = filtroExibicao === cat;
                 return (
                   <button
                     type="button"
@@ -83,13 +82,13 @@ export const ConteudoPage = () => {
                   <FontAwesomeIcon icon={faBookBookmark} className="text-purple-500 text-sm"/>
                 </div>
                 <h2 className="text-xl font-semibold tracking-tight">
-                  {filtroTitulo === "Tudo" ? "Todos os conteúdos" : filtroTitulo}
+                  {filtroExibicao === "Tudo" ? "Todos os conteúdos" : filtroExibicao}
                 </h2>
               </div>
               
               <span className="text-xs text-neutral-500 font-mono">
                 {materiasFiltradas.length}
-                {filtroTitulo !== "Tudo" && materias.length > 0 ? (
+                {filtroExibicao !== "Tudo" && materias.length > 0 ? (
                   <span className="text-neutral-600"> / {materias.length}</span>
                 ) : null}
               </span>
@@ -99,7 +98,7 @@ export const ConteudoPage = () => {
               <ConteudoCard
                 items={materiasFiltradas}
                 emptyMessage={
-                  materias.length > 0 && filtroTitulo !== "Tudo"
+                  materias.length > 0 && filtroExibicao !== "Tudo"
                     ? "Nenhuma sessão agendada nesta disciplina."
                     : undefined
                 }

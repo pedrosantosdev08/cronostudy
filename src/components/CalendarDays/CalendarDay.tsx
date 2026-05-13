@@ -1,18 +1,5 @@
-const baseDate = new Date();
-const days: { name: string; number: number; fullName: string }[] = [];
-const monday = baseDate.getDate() - baseDate.getDay() + 1;
-
-for (let i = 0; i < 7; i++) {
-  const date = new Date(baseDate.getFullYear(), baseDate.getMonth(), monday + i);
-  const dayName = date.toLocaleDateString("pt-BR", { weekday: "long" });
-  const dayNumber = date.getDate();
-
-  days.push({
-    name: dayName.slice(0, 3),
-    number: dayNumber,
-    fullName: dayName,
-  });
-}
+import { useMemo } from "react";
+import { getSemanaCorrenteDiasCompleto } from "../../lib/calendarWeek";
 
 interface CalendarDaysProps {
   onSelectDay: (dayName: string) => void;
@@ -20,6 +7,8 @@ interface CalendarDaysProps {
 }
 
 export const CalendarDays = ({ onSelectDay, diaAtivo }: CalendarDaysProps) => {
+  const days = useMemo(() => getSemanaCorrenteDiasCompleto(), []);
+
   return (
     <div className="w-full">
       {/* Mobile: Flex com Scroll 
