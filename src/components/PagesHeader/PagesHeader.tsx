@@ -28,7 +28,7 @@ export const PagesHeader = ({
                 background: `linear-gradient(135deg, ${variantColor} 0%, #1e1b4b 100% )`,
               }}
             >
-              <FontAwesomeIcon icon={icon} />
+              <FontAwesomeIcon icon={icon} className="text-white"/>
             </div>
             <h1 className="text-white text-2xl font-bold tracking-tight">
               {titleHeader}

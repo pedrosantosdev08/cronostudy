@@ -4,8 +4,6 @@ import {
   faBookOpen,
   faBullseye,
   faCalendar,
-  faCalendarCheck,
-  faCheck,
   faClock,
   faFileLines,
   faFireFlameCurved,
@@ -49,18 +47,12 @@ export const INICIALCARD = [
 },
 {
   id:3,
-  icon: faCheck,
-  title: "Checklist de Assuntos",
-  infoDescription: "Marque os tópicos já estudados e organize suas prioridades. Nunca mais perca o controle do que precisa revisar."
-},
-{
-  id:4,
   icon: faBookOpen,
   title: "Biblioteca de Conteúdos",
   infoDescription: "Acesse materiais de estudo organizados por disciplina. Tudo que você precisa em um só lugar."
 },
 {
-  id:5,
+  id:4,
   icon: faFileLines,
   title: "Controle de Redações",
   infoDescription: "Gerencie suas redações, acompanhe correções e melhore sua escrita de forma consistente."
@@ -86,17 +78,9 @@ export const NAVIGATIONCARD_DATA = [
     variantColor: "#007CDA",
     path: "/conteudos",
   },
+  
   {
     id: 3,
-    icon: faCalendarCheck,
-    title: "Checklist de Assuntos",
-    description: "Acompanhe o progresso em cada materia",
-    label: "Sessões esta semana",
-    variantColor: "#00AB60",
-    path: "/checklist",
-  },
-  {
-    id: 4,
     icon: faFileLines,
     title: "Minhas redações",
     description: "Pratique e revise suas redações",
@@ -105,7 +89,7 @@ export const NAVIGATIONCARD_DATA = [
     path: "/redacoes",
   },
   {
-    id: 5,
+    id: 4,
     icon: faArrowTrendUp,
     title: "Meu Desempenho",
     description: "Visualize estatísticas e evolução nos estudos",

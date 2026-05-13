@@ -53,9 +53,7 @@ export const InicialPage = () => {
             >
               Começar agora gratuitamente
             </button>
-            <button className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-black uppercase italic rounded-xl border border-white/10 transition-all">
-              Ver demonstração
-            </button>
+            
           </div>
         </section>
 
@@ -72,7 +70,7 @@ export const InicialPage = () => {
             </p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 w-full">
             {INICIALCARD.map((card) => (
               <InicialCard key={card.id} {...card} />
             ))}
